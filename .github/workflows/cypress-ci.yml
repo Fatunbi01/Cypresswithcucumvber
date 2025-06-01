@@ -23,8 +23,10 @@ jobs:
 
       - name: Install dependencies
         run: |
+          npm install
           npm ci
           npm install @shelex/cypress-allure-plugin --save-dev
+          npm rebuild
 
       - name: Install Cypress
         run: npx cypress install
@@ -34,6 +36,7 @@ jobs:
         with:
           browser: chrome
           headless: true
+          config-file: cypress.config.js
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
 
@@ -42,10 +45,19 @@ jobs:
         with:
           name: cypress-videos
           path: cypress/videos
+          if-no-files-found: ignore
 
       - name: Upload Cypress Screenshots
         uses: actions/upload-artifact@v4
         with:
           name: cypress-screenshots
           path: cypress/screenshots
+          if-no-files-found: ignore
 
+      - name: Upload Allure Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: allure-results
+          if-no-files-found: ignore
